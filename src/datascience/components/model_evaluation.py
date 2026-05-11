@@ -10,9 +10,9 @@ from src.datascience.utils import read_yaml, create_directories ,save_json
 from pathlib import Path
 import os
 
-os.environ["MLFLOW_TRACKING_URI"] = "https://dagshub.com/aboodcs/datascienceproject.mlflow"
-os.environ["MLFLOW_TRACKING_USERNAME"] = "aboodcs"
-os.environ["MLFLOW_TRACKING_PASSWORD"] = "6101bda6b23aa9ef440664cb2f0aac4cb03e1bcf"
+os.environ["MLFLOW_TRACKING_URI"] = ""
+os.environ["MLFLOW_TRACKING_USERNAME"] = ""
+os.environ["MLFLOW_TRACKING_PASSWORD"] = ""
 
 
 class ModelEvaluation:

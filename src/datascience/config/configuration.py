@@ -79,7 +79,7 @@ class ConfigurationManager:
             model_path = config.model_path,
             metrics_file_path = config.metrics_file_path,
             all_params = params,
-            mlflow_uri ="https://dagshub.com/aboodcs/datascienceproject.mlflow",
+            mlflow_uri ="",
             target_column = schema.name
         )
         return model_evaluation_config

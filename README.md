@@ -10,7 +10,7 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-ElasticNet-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![MLflow](https://img.shields.io/badge/MLflow-Tracking-0194E2?style=for-the-badge&logo=mlflow&logoColor=white)](https://mlflow.org/)
 [![DagsHub](https://img.shields.io/badge/DagsHub-Experiment%20Tracking-EF5B25?style=for-the-badge&logo=dagshub&logoColor=white)](https://dagshub.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+
 
 > **Predict the Relative Performance (PRP) of CPU architectures** using physical hardware specifications.  
 > Built with a production-grade, modular MLOps pipeline — from raw data ingestion all the way to a live Flask web application.
@@ -25,15 +25,14 @@
 2. [📊 Model Performance](#-model-performance)
 3. [🗃️ Dataset](#️-dataset)
 4. [🏗️ Project Architecture](#️-project-architecture)
-5. [📁 Repository Structure](#-repository-structure)
-6. [⚙️ Configuration Files](#️-configuration-files)
-7. [🔁 ML Pipeline — Stage by Stage](#-ml-pipeline--stage-by-stage)
-8. [🛠️ Development Workflow (SOP)](#️-development-workflow-sop)
-9. [🚀 Getting Started](#-getting-started)
-10. [🖥️ Web Application](#️-web-application)
-11. [📈 MLflow Experiment Tracking](#-mlflow-experiment-tracking)
-12. [🧰 Tech Stack](#-tech-stack)
-13. [🤝 Contributing](#-contributing)
+5. [⚙️ Configuration Files](#️-configuration-files)
+6. [🔁 ML Pipeline — Stage by Stage](#-ml-pipeline--stage-by-stage)
+7. [🛠️ Development Workflow (SOP)](#️-development-workflow-sop)
+8. [🚀 Getting Started](#-getting-started)
+9. [🖥️ Web Application](#️-web-application)
+10. [📈 MLflow Experiment Tracking](#-mlflow-experiment-tracking)
+11. [🧰 Tech Stack](#-tech-stack)
+12. [🤝 Contributing](#-contributing)
 
 ---
 
@@ -151,70 +150,6 @@ Raw Data (GitHub URL)
 ┌──────────────────────┐
 │  Flask Web App       │ ──► Live predictions at http://0.0.0.0:8081
 └──────────────────────┘
-```
-
----
-
-## 📁 Repository Structure
-
-```
-CPU-Performance-Prediction/
-│
-├── 📂 assets/                          # Screenshots & architecture diagrams
-│   ├── website_home.png
-│   ├── website_form.png
-│   ├── website_results.png
-│   └── pipeline_architecture.png
-│
-├── 📂 artifacts/                       # Auto-generated pipeline outputs (gitignored)
-│   ├── data_ingestion/                 # Raw downloaded dataset
-│   ├── data_validation/                # Validation status file
-│   ├── data_transformation/            # Processed train/test splits
-│   ├── model_trainer/                  # Saved model (.joblib)
-│   └── model_evaluation/              # Evaluation metrics (YAML)
-│
-├── 📂 config/
-│   └── config.yaml                     # ⚙️ Central pipeline configuration
-│
-├── 📂 research/                        # Jupyter notebooks for prototyping
-│
-├── 📂 src/datascience/
-│   ├── 📂 components/                  # Core logic for each pipeline stage
-│   │   ├── data_ingestion.py
-│   │   ├── data_validation.py
-│   │   ├── data_transformation.py
-│   │   ├── model_trainer.py
-│   │   └── model_evaluation.py
-│   │
-│   ├── 📂 pipeline/                    # Orchestration wrappers
-│   │   ├── data_ingestion_pipeline.py
-│   │   ├── data_validation_pipeline.py
-│   │   ├── data_transformation_pipeline.py
-│   │   ├── model_trainer_pipeline.py
-│   │   ├── model_evaluation_pipeline.py
-│   │   └── prediction_pipeline.py      # Used by the Flask app
-│   │
-│   ├── 📂 config/                      # Configuration manager
-│   │   └── configuration.py
-│   │
-│   ├── 📂 entity/                      # Dataclass definitions
-│   │   └── config_entity.py
-│   │
-│   ├── 📂 constants/                   # Path constants
-│   └── 📂 utils/                       # Shared utility functions
-│
-├── 📂 templates/                       # Flask HTML templates
-│   ├── index.html                      # Prediction form
-│   └── results.html                    # Results display
-│
-├── 📄 main.py                          # 🚀 Pipeline entry point
-├── 📄 app.py                           # 🌐 Flask web server
-├── 📄 schema.yaml                      # Data schema & target column
-├── 📄 params.yaml                      # Model hyperparameters
-├── 📄 requirements.txt                 # Python dependencies
-├── 📄 Dockerfile                       # Container definition
-├── 📄 .gitignore
-└── 📄 LICENSE
 ```
 
 ---
@@ -394,8 +329,7 @@ cd datascienceproject
 **Step 2 — Create a Virtual Environment**
 ```bash
 python3 -m venv env
-source env/bin/activate        # Linux / macOS
-# env\Scripts\activate         # Windows
+source env/bin/activate
 ```
 
 **Step 3 — Install Dependencies**
@@ -407,7 +341,7 @@ pip install -r requirements.txt
 
 This triggers all 5 stages sequentially: ingestion → validation → transformation → training → evaluation.
 ```bash
-python main.py
+python3 main.py
 ```
 
 You should see structured log output for each stage:
@@ -421,7 +355,7 @@ x==========x
 
 **Step 5 — Launch the Web Application**
 ```bash
-python app.py
+python3 app.py
 ```
 
 Open your browser and navigate to:

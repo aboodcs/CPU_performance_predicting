@@ -3,3 +3,4 @@ logs/
 artifacts/
 __pycache__/env/
 mlflow.db
+generate_assets.py
