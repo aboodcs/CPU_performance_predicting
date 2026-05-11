@@ -1,0 +1,11 @@
+COLUMNS:
+  MYCT: int64
+  MMIN: int64
+  MMAX: int64
+  CACH: int64
+  CHMIN: int64
+  CHMAX: int64
+  PRP: int64
+
+TARGET_COLUMN:
+  name: PRP
