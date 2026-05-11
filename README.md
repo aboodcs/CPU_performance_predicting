@@ -1,158 +1,546 @@
-# 💻 CPU Performance Prediction Project
+<div align="center">
 
-![Hero](assets/11.jpeg)
+<img src="assets/website_home.png" alt="CPU Analytics Dashboard" width="100%"/>
 
-A complete end-to-end Machine Learning pipeline built for predicting CPU performance based on hardware specifications. This project follows industry-standard MLOps practices, featuring modular components, clear configuration management, MLflow experiment tracking on DagsHub, and a beautifully designed high-end Flask-based web interface.
+# ⚡ CPU Performance Prediction
+### *An End-to-End MLOps Regression Pipeline*
 
-*(Path: `desktop/eee` - Reference: `11 22 33`)*
+[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-2.x-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-ElasticNet-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![MLflow](https://img.shields.io/badge/MLflow-Tracking-0194E2?style=for-the-badge&logo=mlflow&logoColor=white)](https://mlflow.org/)
+[![DagsHub](https://img.shields.io/badge/DagsHub-Experiment%20Tracking-EF5B25?style=for-the-badge&logo=dagshub&logoColor=white)](https://dagshub.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+
+> **Predict the Relative Performance (PRP) of CPU architectures** using physical hardware specifications.  
+> Built with a production-grade, modular MLOps pipeline — from raw data ingestion all the way to a live Flask web application.
+
+</div>
 
 ---
 
-## 💻 Getting Started (Installation & Setup)
+## 📋 Table of Contents
 
-Follow these step-by-step instructions to download and run the project on your local machine:
+1. [🔍 Project Overview](#-project-overview)
+2. [📊 Model Performance](#-model-performance)
+3. [🗃️ Dataset](#️-dataset)
+4. [🏗️ Project Architecture](#️-project-architecture)
+5. [📁 Repository Structure](#-repository-structure)
+6. [⚙️ Configuration Files](#️-configuration-files)
+7. [🔁 ML Pipeline — Stage by Stage](#-ml-pipeline--stage-by-stage)
+8. [🛠️ Development Workflow (SOP)](#️-development-workflow-sop)
+9. [🚀 Getting Started](#-getting-started)
+10. [🖥️ Web Application](#️-web-application)
+11. [📈 MLflow Experiment Tracking](#-mlflow-experiment-tracking)
+12. [🧰 Tech Stack](#-tech-stack)
+13. [🤝 Contributing](#-contributing)
 
-**Step 1: Clone the repository**
+---
+
+## 🔍 Project Overview
+
+This project implements a **full end-to-end Machine Learning pipeline** to predict the **Relative Performance (PRP)** of CPU hardware based on 6 physical architecture features. It is modelled after real-world MLOps practices used in production environments and serves as a reference architecture for structured ML projects.
+
+### ✨ Key Highlights
+
+| Feature | Details |
+|---|---|
+| 🎯 **Task** | Regression — Predicting CPU Relative Performance |
+| 🤖 **Algorithm** | ElasticNet (scikit-learn) |
+| 📐 **Metric** | R² = **0.908**, RMSE = **46.3**, MAE = **33.3** |
+| 🧪 **Experiment Tracking** | MLflow + DagsHub |
+| 🌐 **Serving** | Flask REST API + Interactive Web UI |
+| 🔧 **Architecture** | Modular Pipeline (5 independent stages) |
+| 📦 **Config-Driven** | YAML-based configuration management |
+
+---
+
+## 📊 Model Performance
+
+The trained **ElasticNet regression model** achieves strong predictive accuracy on the CPU performance dataset:
+
+| Metric | Value | Description |
+|---|---|---|
+| **R² Score** | `0.908` | 90.8% of variance explained by the model |
+| **RMSE** | `46.3` | Root Mean Squared Error on test set |
+| **MAE** | `33.3` | Mean Absolute Error on test set |
+
+> 📌 All metrics are automatically logged to **MLflow** on DagsHub after every training run.
+
+---
+
+## 🗃️ Dataset
+
+The project uses the **[UCI Machine Learning Repository — Computer Hardware Dataset](https://archive.ics.uci.edu/ml/datasets/Computer+Hardware)**.
+
+The raw data is fetched directly at runtime from:
+```
+https://raw.githubusercontent.com/HoussemLahmar/CPU-Performance-Prediction/main/machine.data
+```
+
+### 🔢 Feature Descriptions
+
+| Feature | Type | Unit | Description |
+|---|---|---|---|
+| **MYCT** | `int64` | nanoseconds | Machine cycle time |
+| **MMIN** | `int64` | KB | Minimum main memory |
+| **MMAX** | `int64` | KB | Maximum main memory |
+| **CACH** | `int64` | KB | Cache memory size |
+| **CHMIN** | `int64` | channels | Minimum channels in units |
+| **CHMAX** | `int64` | channels | Maximum channels in units |
+| **PRP** ⭐ | `int64` | — | **Target: Published Relative Performance** |
+
+> `PRP` is the target variable — the value the model learns to predict.
+
+### Schema (`schema.yaml`)
+```yaml
+COLUMNS:
+  MYCT: int64
+  MMIN: int64
+  MMAX: int64
+  CACH: int64
+  CHMIN: int64
+  CHMAX: int64
+  PRP: int64
+
+TARGET_COLUMN:
+  name: PRP
+```
+
+---
+
+## 🏗️ Project Architecture
+
+<div align="center">
+
+![MLOps Pipeline Architecture](assets/pipeline_architecture.png)
+
+</div>
+
+The pipeline is organized into **5 sequential, independent stages**. Each stage produces artifacts consumed by the next, enabling a clean, reproducible workflow.
+
+```
+Raw Data (GitHub URL)
+      │
+      ▼
+┌─────────────────┐
+│  Data Ingestion │ ──► artifacts/data_ingestion/machine.data
+└─────────────────┘
+      │
+      ▼
+┌──────────────────┐
+│ Data Validation  │ ──► artifacts/data_validation/status.txt
+└──────────────────┘
+      │
+      ▼
+┌───────────────────────┐
+│ Data Transformation   │ ──► artifacts/data_transformation/train.csv
+└───────────────────────┘                                   test.csv
+      │
+      ▼
+┌────────────────┐
+│ Model Training │ ──► artifacts/model_trainer/model.joblib
+└────────────────┘
+      │
+      ▼
+┌──────────────────┐
+│ Model Evaluation │ ──► artifacts/model_evaluation/metrics.yaml
+└──────────────────┘         (+ logged to MLflow / DagsHub)
+      │
+      ▼
+┌──────────────────────┐
+│  Flask Web App       │ ──► Live predictions at http://0.0.0.0:8081
+└──────────────────────┘
+```
+
+---
+
+## 📁 Repository Structure
+
+```
+CPU-Performance-Prediction/
+│
+├── 📂 assets/                          # Screenshots & architecture diagrams
+│   ├── website_home.png
+│   ├── website_form.png
+│   ├── website_results.png
+│   └── pipeline_architecture.png
+│
+├── 📂 artifacts/                       # Auto-generated pipeline outputs (gitignored)
+│   ├── data_ingestion/                 # Raw downloaded dataset
+│   ├── data_validation/                # Validation status file
+│   ├── data_transformation/            # Processed train/test splits
+│   ├── model_trainer/                  # Saved model (.joblib)
+│   └── model_evaluation/              # Evaluation metrics (YAML)
+│
+├── 📂 config/
+│   └── config.yaml                     # ⚙️ Central pipeline configuration
+│
+├── 📂 research/                        # Jupyter notebooks for prototyping
+│
+├── 📂 src/datascience/
+│   ├── 📂 components/                  # Core logic for each pipeline stage
+│   │   ├── data_ingestion.py
+│   │   ├── data_validation.py
+│   │   ├── data_transformation.py
+│   │   ├── model_trainer.py
+│   │   └── model_evaluation.py
+│   │
+│   ├── 📂 pipeline/                    # Orchestration wrappers
+│   │   ├── data_ingestion_pipeline.py
+│   │   ├── data_validation_pipeline.py
+│   │   ├── data_transformation_pipeline.py
+│   │   ├── model_trainer_pipeline.py
+│   │   ├── model_evaluation_pipeline.py
+│   │   └── prediction_pipeline.py      # Used by the Flask app
+│   │
+│   ├── 📂 config/                      # Configuration manager
+│   │   └── configuration.py
+│   │
+│   ├── 📂 entity/                      # Dataclass definitions
+│   │   └── config_entity.py
+│   │
+│   ├── 📂 constants/                   # Path constants
+│   └── 📂 utils/                       # Shared utility functions
+│
+├── 📂 templates/                       # Flask HTML templates
+│   ├── index.html                      # Prediction form
+│   └── results.html                    # Results display
+│
+├── 📄 main.py                          # 🚀 Pipeline entry point
+├── 📄 app.py                           # 🌐 Flask web server
+├── 📄 schema.yaml                      # Data schema & target column
+├── 📄 params.yaml                      # Model hyperparameters
+├── 📄 requirements.txt                 # Python dependencies
+├── 📄 Dockerfile                       # Container definition
+├── 📄 .gitignore
+└── 📄 LICENSE
+```
+
+---
+
+## ⚙️ Configuration Files
+
+This project follows a **config-driven design**. All settings are centralized in YAML files — no hardcoded paths or magic numbers in the source code.
+
+### `config/config.yaml` — Pipeline Paths & Directories
+```yaml
+artifacts_root: artifacts
+
+data_ingestion:
+  root_dir: artifacts/data_ingestion
+  source_URL: https://raw.githubusercontent.com/HoussemLahmar/CPU-Performance-Prediction/main/machine.data
+  local_data_file: artifacts/data_ingestion/machine.data
+
+data_validation:
+  root_dir: artifacts/data_validation
+  STATUS_FILE: artifacts/data_validation/status.txt
+
+data_transformation:
+  root_dir: artifacts/data_transformation
+  data_path: artifacts/data_ingestion/machine.data
+
+model_trainer:
+  root_dir: artifacts/model_trainer
+  train_data_path: artifacts/data_transformation/train.csv
+  test_data_path: artifacts/data_transformation/test.csv
+  model_path: model.joblib
+
+model_evaluation:
+  root_dir: artifacts/model_evaluation
+  test_data_path: artifacts/data_transformation/test.csv
+  model_path: artifacts/model_trainer/model.joblib
+  metrics_file_path: artifacts/model_evaluation/metrics.yaml
+```
+
+### `params.yaml` — Model Hyperparameters
+```yaml
+ElasticNet:
+  alpha: 0.05
+  l1_ratio: 0.3
+```
+
+> 💡 Tuning the model is as simple as editing `params.yaml` and re-running `python main.py` — no code changes required.
+
+---
+
+## 🔁 ML Pipeline — Stage by Stage
+
+### Stage 1 · 📥 Data Ingestion
+
+**File:** `src/datascience/components/data_ingestion.py`
+
+Fetches the raw CPU hardware dataset from a remote GitHub URL and stores it locally.
+
+- **Source:** `https://raw.githubusercontent.com/HoussemLahmar/CPU-Performance-Prediction/main/machine.data`
+- **Output:** `artifacts/data_ingestion/machine.data`
+
+---
+
+### Stage 2 · 🧹 Data Validation
+
+**File:** `src/datascience/components/data_validation.py`
+
+Validates the ingested dataset against the `schema.yaml` specification before processing.
+
+**Checks performed:**
+- ✅ All required columns are present (`MYCT`, `MMIN`, `MMAX`, `CACH`, `CHMIN`, `CHMAX`, `PRP`)
+- ✅ Data types match the declared schema
+- ✅ No structural corruption in the file
+
+- **Output:** `artifacts/data_validation/status.txt`
+  - Contains `Validation Status: True` if all checks pass
+  - The next stage will **abort** if this file is `False`
+
+---
+
+### Stage 3 · 🔄 Data Transformation
+
+**File:** `src/datascience/components/data_transformation.py`
+
+Prepares the validated dataset for model training.
+
+**Operations:**
+- Feature/target separation (`PRP` is the target)
+- Train/test split (80/20)
+- Feature scaling (StandardScaler or equivalent)
+
+- **Output:**
+  - `artifacts/data_transformation/train.csv`
+  - `artifacts/data_transformation/test.csv`
+
+---
+
+### Stage 4 · 🤖 Model Training
+
+**File:** `src/datascience/components/model_trainer.py`
+
+Trains an **ElasticNet regression model** using scikit-learn with hyperparameters read from `params.yaml`.
+
+**Hyperparameters:**
+| Parameter | Value | Description |
+|---|---|---|
+| `alpha` | `0.05` | Regularization strength |
+| `l1_ratio` | `0.3` | Mix ratio (0 = Ridge, 1 = Lasso) |
+
+- **Output:** `artifacts/model_trainer/model.joblib`
+
+---
+
+### Stage 5 · 📊 Model Evaluation
+
+**File:** `src/datascience/components/model_evaluation.py`
+
+Evaluates the trained model on the held-out test set and logs all results to MLflow.
+
+**Metrics Computed:**
+| Metric | Formula | Result |
+|---|---|---|
+| **RMSE** | `√(MSE)` | `46.3` |
+| **MAE** | `mean(|y - ŷ|)` | `33.3` |
+| **R² Score** | `1 - SS_res/SS_tot` | `0.908` |
+
+**MLflow Integration:**
+- Parameters, metrics, and the trained model artifact are logged automatically
+- Model is registered as `ElasticNetCPUModel` in DagsHub's MLflow registry
+- **Output:** `artifacts/model_evaluation/metrics.yaml`
+
+---
+
+## 🛠️ Development Workflow (SOP)
+
+> This is the **Standard Operating Procedure** used when adding any new pipeline stage. Follow this order every time — it ensures a clean, reproducible architecture.
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  STEP 1 › config/config.yaml          Add paths & settings              │
+│  STEP 2 › research/ (Jupyter)         Prototype & experiment            │
+│  STEP 3 › src/entity/config_entity.py Copy @dataclass from notebook     │
+│  STEP 4 › src/config/configuration.py Copy get_*_config() method        │
+│  STEP 5 › src/components/             Create new component file          │
+│  STEP 6 › src/pipeline/               Create pipeline wrapper script     │
+│  STEP 7 › main.py                     Register & run the new stage       │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+| Step | File / Directory | What to Do |
+|---|---|---|
+| **1** | `config/config.yaml` | Add paths, directories, and settings for the new stage |
+| **2** | `research/*.ipynb` | Build and test logic interactively in a Jupyter Notebook |
+| **3** | `src/entity/config_entity.py` | Move the `@dataclass` config entity from the notebook |
+| **4** | `src/config/configuration.py` | Move the `get_*_config()` method from the notebook |
+| **5** | `src/components/new_stage.py` | Implement the core component class |
+| **6** | `src/pipeline/new_stage_pipeline.py` | Create the orchestration pipeline wrapper |
+| **7** | `main.py` | Import and execute the new pipeline stage |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Python 3.8+** installed
+- **pip** package manager
+- **Git**
+
+### Installation
+
+**Step 1 — Clone the Repository**
 ```bash
 git clone https://github.com/aboodcs/datascienceproject.git
 cd datascienceproject
 ```
 
-**Step 2: Create a virtual environment**
-It's highly recommended to use an isolated environment to manage dependencies:
+**Step 2 — Create a Virtual Environment**
 ```bash
 python3 -m venv env
-source env/bin/activate
+source env/bin/activate        # Linux / macOS
+# env\Scripts\activate         # Windows
 ```
 
-**Step 3: Install dependencies**
-Install all required libraries for the pipeline and the web application:
+**Step 3 — Install Dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-**Step 4: Execute the ML pipeline**
-Run the main script to trigger data ingestion, validation, transformation, model training, and evaluation. This will train the model and generate all artifacts:
+**Step 4 — Run the Full Training Pipeline**
+
+This triggers all 5 stages sequentially: ingestion → validation → transformation → training → evaluation.
 ```bash
 python main.py
 ```
 
-**Step 5: Launch the Web Application**
-Once the model is trained, start the Flask server to interact with the web UI:
+You should see structured log output for each stage:
+```
+>>>>> stage Data Ingestion Stage started <<<<<
+>>>>> stage Data Ingestion Stage completed <<<<<
+x==========x
+>>>>> stage Data Validation Stage started <<<<<
+...
+```
+
+**Step 5 — Launch the Web Application**
 ```bash
 python app.py
 ```
-*Open your browser and go to `http://localhost:8081` (or the port specified in your terminal) to start predicting CPU performance!*
+
+Open your browser and navigate to:
+```
+http://localhost:8081
+```
 
 ---
 
-## 🏗️ Project Architecture & Pipeline Stages
+## 🖥️ Web Application
 
-![MLOps Architecture](assets/22.jpeg)
+The project ships with a beautifully designed **Flask-powered web interface** for real-time CPU performance prediction.
 
-The entire pipeline is built step-by-step, exactly reflecting the code inside the `src/datascience/components` and `src/datascience/pipeline` directories. This is exactly what happens when you run `main.py` in the project:
+### 🏠 Prediction Form
 
-### 1. 📥 Data Ingestion (`data_ingestion_pipeline.py`)
-- **What happens:** The pipeline downloads the raw `machine.data` file directly from the remote GitHub URL using `urllib.request`. If it already exists, it skips the download.
-- **Output:** The dataset is saved locally to `artifacts/data_ingestion/machine.data`.
+<div align="center">
+<img src="assets/website_home.png" alt="CPU Analytics — Prediction Form" width="90%"/>
+</div>
 
-### 2. 🧹 Data Validation (`data_validation_pipeline.py`)
-- **What happens:** The validation component reads `machine.data` and strictly compares the columns against the rules defined in `schema.yaml`. It ensures all required columns (MYCT, MMIN, MMAX, CACH, CHMIN, CHMAX, PRP) are present and correctly formatted.
-- **Output:** A file is written to `artifacts/data_validation/status.txt` confirming if validation `Passed` or `Failed`.
+Enter the 6 hardware specifications and click **Compute Prediction**:
 
-### 3. 🔄 Data Transformation (`data_transformation_pipeline.py`)
-- **What happens:** The pipeline checks if the validation status is "Passed". If so, it proceeds. The raw data contains non-predictive features. This component specifically **drops** the `vendor`, `model`, and `ERP` columns. It then applies `train_test_split` from `scikit-learn` to split the data (75% train, 25% test).
-- **Output:** Fully processed datasets are saved as `train.csv` and `test.csv` in `artifacts/data_transformation/`.
-
-### 4. 🤖 Model Training (`model_trainer_pipeline.py`)
-- **What happens:** The training component loads the processed `train.csv`. It separates the features from the target variable (`PRP`). It then trains an **ElasticNet Regression** model using hyperparameters `alpha=0.05` and `l1_ratio=0.3` (loaded dynamically from `params.yaml`) with `random_state=42`.
-- **Output:** The trained model is serialized using `joblib` and saved to `artifacts/model_trainer/model.joblib`.
-
-### 5. 📊 Model Evaluation & Tracking (`model_evaluation_pipeline.py`)
-- **What happens:** The trained model is evaluated on the unseen `test.csv`. The script calculates **RMSE**, **MAE**, and an **R² Score**. 
-- **Tracking:** These metrics, along with the model parameters, are logged directly to a remote **MLflow server hosted on DagsHub**. The model artifact is also securely registered in the registry.
-- **Output:** A local `metrics.yaml` file is generated alongside the remote tracking in the `artifacts/model_evaluation/` directory.
+| Field | Description | Example Value |
+|---|---|---|
+| **MYCT** | Machine cycle time (ns) | `29` |
+| **MMIN** | Minimum main memory (KB) | `8000` |
+| **MMAX** | Maximum main memory (KB) | `32000` |
+| **CACH** | Cache size (KB) | `64` |
+| **CHMIN** | Min channels | `8` |
+| **CHMAX** | Max channels | `32` |
 
 ---
 
-## 🧱 Workflow Development Structure
+### 📋 Filled Form
 
-When building an end-to-end ML pipeline, we follow a structured development order.  
-The first three steps form the **foundation of every ML project** | **((((VERY IMPORTANT))))**.
-
-### `config.yaml` , `schema.yaml` , `params.yaml`
-
----
-
-### 1. ⚙️ Configuration Setup
-
-Define all project settings and parameters:
-
-- `config.yaml` → project paths, directories, pipeline configuration  
-- `schema.yaml` → structure and validation rules of input data  
-- `params.yaml` → model hyperparameters and tuning settings  
-
-👉 **Purpose:** Centralize all configurations so the project is flexible and easy to manage.
+<div align="center">
+<img src="assets/website_form.png" alt="CPU Analytics — Filled Form" width="90%"/>
+</div>
 
 ---
 
-### 2. 🧬 Entity Definitions
+### ✅ Prediction Results
 
-Define data classes (entities) for configurations and pipeline components (found in `src/datascience/entity/config_entity.py`).
+<div align="center">
+<img src="assets/website_results.png" alt="CPU Analytics — Results Page" width="90%"/>
+</div>
 
-👉 **Purpose:**
-- Ensures type safety  
-- Defines clear structure for each configuration section  
-- Makes the pipeline more reliable and maintainable  
+The results page displays:
+- ✅ **Inference Successful** confirmation
+- 🔢 The predicted **Estimated Relative Performance** score (e.g., `327.2`)
+- 📋 A summary of all input parameters used for the prediction
+- 🔄 A **"New Calculation"** button to run another prediction
 
----
+### 🌐 Available Routes
 
-### 3. ⚙️ Configuration Manager (`src/config`)
+| Route | Method | Description |
+|---|---|---|
+| `/` | `GET` | Main prediction form |
+| `/predict` | `POST` | Submit form data → get prediction |
+| `/train` | `GET` | Trigger full pipeline retraining |
 
-Responsible for reading and managing configuration files (`src/datascience/config/configuration.py`).
-
-It:
-- Loads YAML files
-- Converts them into Python objects
-- Supplies them to components and pipelines
-
-👉 **Purpose:** Provides a clean interface between configuration and code logic.
-
----
-
-### 4. 🧩 Components Development
-
-Each pipeline stage is implemented as an independent component within `src/datascience/components/`:
-
-- `data_ingestion.py`  
-- `data_validation.py`  
-- `data_transformation.py`  
-- `model_trainer.py`  
-- `model_evaluation.py`  
-
-👉 **Purpose:**
-- Modular design  
-- Reusable code  
-- Easier debugging and testing  
+> 💡 Navigating to `http://localhost:8081/train` will re-run `main.py` in the background, retraining the model with fresh data!
 
 ---
 
-### 5. 🔗 Pipeline Construction
+## 📈 MLflow Experiment Tracking
 
-All components are connected in a sequential workflow inside `src/datascience/pipeline/`.
+All training runs are tracked with **MLflow** and stored remotely on **DagsHub**.
+
+Every run logs:
+- 📌 **Parameters:** `alpha`, `l1_ratio`
+- 📊 **Metrics:** `rmse`, `mae`, `r2`
+- 🤖 **Artifacts:** The trained `model.joblib` registered as `ElasticNetCPUModel`
+
+To view the MLflow UI locally after running the pipeline:
+```bash
+mlflow ui
+```
+Then open `http://localhost:5000` in your browser.
+
+> 🌍 Remote tracking: [dagshub.com/aboodcs/datascienceproject](https://dagshub.com/aboodcs/datascienceproject.mlflow)
 
 ---
 
-## 🚀 Web Application
+## 🧰 Tech Stack
 
-We developed a highly polished, professional dark-mode dashboard to interact with the trained ElasticNet model. The UI uses modern glassmorphism design, glowing accents, and jetbrains mono fonts for a premium developer feel. **These are actual screenshots of the running application, directly reflecting the `templates/index.html` frontend.**
+| Layer | Technology |
+|---|---|
+| **Language** | Python 3.8+ |
+| **ML Framework** | scikit-learn (ElasticNet) |
+| **Data Processing** | pandas, numpy |
+| **Experiment Tracking** | MLflow + DagsHub |
+| **Web Framework** | Flask + Flask-CORS |
+| **Model Serialization** | joblib |
+| **Configuration** | PyYAML, python-box |
+| **Prototyping** | Jupyter Notebook |
+| **Containerization** | Docker |
+| **Visualization** | matplotlib |
 
-### 1. The Performance Prediction Form
-Users can enter the 6 core physical attributes of the CPU. The UI is built with vanilla CSS, utilizing glassmorphism, glowing gradients, and responsive grids. 
-*(Actual screenshot from `localhost:8081`)*
-![Web Interface Form](assets/website_home.png)
+---
 
-### 2. The AI Analysis Results
-The prediction is calculated instantly by loading `model.joblib`. The results page provides a clean breakdown of the estimated relative performance score alongside the submitted inputs in a visually pleasing success card.
-*(Actual screenshot from `localhost:8081/predict`)*
-![Web Interface Results](assets/website_results.png)
+## 🤝 Contributing
+
+Contributions are welcome! Here's how to get started:
+
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/your-feature-name`
+3. **Follow the SOP** in the [Development Workflow](#️-development-workflow-sop) section when adding pipeline stages
+4. **Commit** your changes: `git commit -m "feat: add your feature description"`
+5. **Push** to your branch: `git push origin feature/your-feature-name`
+6. **Open** a Pull Request
+
+Please ensure all new pipeline stages follow the established modular pattern and include corresponding entries in `config.yaml`.
+
+---
+
+<div align="center">
+
+Made with ❤️ by **[aboodcs](https://github.com/aboodcs)**
+
+⭐ If this project helped you, please give it a star on GitHub!
+
+</div>
