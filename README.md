@@ -451,7 +451,6 @@ Then open `http://localhost:5000` in your browser.
 | **Model Serialization** | joblib |
 | **Configuration** | PyYAML, python-box |
 | **Prototyping** | Jupyter Notebook |
-| **Containerization** | Docker |
 | **Visualization** | matplotlib |
 
 ---
