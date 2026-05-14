@@ -39,7 +39,6 @@ class ModelEvaluation:
             (rmse, mae, r2) = self.eval_metrics(test_y, predicted_qualities)
             mlflow.log_metrics({"rmse": rmse, "mae": mae, "r2": r2})
 
-            #saving metrices as local
             scores = {
                 "rmse": rmse,
                 "mae": mae,
